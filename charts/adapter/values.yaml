@@ -31,7 +31,7 @@ networkPolicy:
     port: 31100
   camunda:
     app: camunda
-    port: 8188
+    port: 8189
   aidocudroid:
     app: aidocudroid
     port: 3000

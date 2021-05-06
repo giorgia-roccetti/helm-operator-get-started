@@ -1,0 +1,10 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: test-info 
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://github.com/giorgia-roccetti/helm-operator-get-started/
+  secretRef:
+    name: https-credentials-git
