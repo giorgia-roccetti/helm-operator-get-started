@@ -1,0 +1,47 @@
+# Default values for wphhc-adapter.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+namespace: wph-hc
+
+
+image:
+  repository: gcr.io/konica-healthcare/wphhc/adapter
+  tag: dev
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: regcred
+
+istio:
+  mtlsMode: STRICT
+  ft_istio_175: false
+
+credentials: 
+  ft_camunda_service_user: false
+
+adapter:
+  mode: mirth
+  optionalProperties: []
+
+networkPolicy:
+  mirth:
+    app: mirth-connect
+    port: 31100
+  camunda:
+    app: camunda
+    port: 8188
+  aidocudroid:
+    app: aidocudroid
+    port: 3000
+
+service:
+  type: ClusterIP
+  port: 8089
+  targetPort: 8080
+
+livenessProbe:
+  httpGet:
+    path: /health/live
+    port: 8080

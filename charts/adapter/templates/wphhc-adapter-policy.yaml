@@ -1,0 +1,15 @@
+{{- if not .Values.istio.ft_istio_175 }}
+apiVersion: authentication.istio.io/v1alpha1
+kind: Policy
+metadata:
+  name: {{ include "wphhc-adapter.name" . }}-policy
+  namespace: {{ .Values.namespace }}
+  labels:
+  {{ include "wphhc-adapter.labels" . | indent 2 }}
+spec:
+  targets:
+  - name: {{ include "wphhc-adapter.name" . }}
+  peers:
+  - mtls:
+      mode: {{ .Values.istio.mtlsMode }}
+{{- end }}

@@ -1,0 +1,68 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ include "wphhc-adapter.name" . }}-network-policy
+spec:
+  endpointSelector:
+    matchLabels:
+      app: {{ include "wphhc-adapter.name" . }}
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app: kafka
+      toPorts:
+        - ports:
+            - port: "9092"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app: cp-schema-registry
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP
+    - toEndpoints:
+        - matchExpressions:
+            {{- if eq .Values.adapter.mode "mirth" }}
+            - {key: app, operator: In, values: [{{ .Values.networkPolicy.mirth.app }}]}
+            - {key: io.kubernetes.pod.namespace, operator: Exists}
+            {{- end }}
+            {{- if eq .Values.adapter.mode "camunda" }}
+            - {key: app, operator: In, values: [{{ .Values.networkPolicy.camunda.app }}]}
+            - {key: io.kubernetes.pod.namespace, operator: Exists}
+            {{- end }}
+            {{- if eq .Values.adapter.mode "aidocudroid" }}
+            - {key: app, operator: In, values: [{{ .Values.networkPolicy.aidocudroid.app }}]}
+            - {key: io.kubernetes.pod.namespace, operator: Exists}
+            {{- end }}
+      toPorts:
+        - ports:
+            {{- if eq .Values.adapter.mode "mirth" }}
+            - port: {{ .Values.networkPolicy.mirth.port | quote }}
+            {{- end }}
+            {{- if eq .Values.adapter.mode "camunda" }}
+            - port: {{ .Values.networkPolicy.camunda.port | quote }}
+            {{- end }}
+            {{- if eq .Values.adapter.mode "aidocudroid" }}
+            - port: {{ .Values.networkPolicy.aidocudroid.port | quote }}
+            {{- end }}
+              protocol: TCP
+  ingress:
+    - fromEndpoints:
+        - matchExpressions:
+            {{- if eq .Values.adapter.mode "mirth" }}
+            - {key: app, operator: In, values: [{{ .Values.networkPolicy.mirth.app }}]}
+            - {key: io.kubernetes.pod.namespace, operator: Exists}
+            {{- end }}
+            {{- if eq .Values.adapter.mode "camunda" }}
+            - {key: app, operator: In, values: [{{ .Values.networkPolicy.camunda.app }}]}
+            - {key: io.kubernetes.pod.namespace, operator: Exists}
+            {{- end }}
+            {{- if eq .Values.adapter.mode "aidocudroid" }}
+            - {key: app, operator: In, values: [{{ .Values.networkPolicy.aidocudroid.app }}]}
+            - {key: io.kubernetes.pod.namespace, operator: Exists}
+            {{- end }}
+      toPorts:
+        - ports:
+            - port: {{ .Values.service.targetPort | quote }}
+              protocol: TCP

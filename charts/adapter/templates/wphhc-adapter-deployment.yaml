@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wphhc-adapter.name" . }}
+  labels:
+  {{ include "wphhc-adapter.labels" . | indent 2}}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+  {{ include "wphhc-adapter.labels" . | indent 4 }}
+  template:
+    metadata:
+      name: {{ include "wphhc-adapter.name" . }}
+      labels:
+  {{ include "wphhc-adapter.labels" . | indent 6 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      containers:
+      - image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        name: {{ include "wphhc-adapter.name" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.targetPort }}
+        env:
+          - name: ADAPTER_MODE
+            value: {{required "A valid adapter.mode is required!" .Values.adapter.mode }}
+{{ include "wphhc-adapter.topics" . | indent 10 }}
+{{ include "wphhc-adapter.customEnvProperties" . | indent 10 }}
+          {{- range .Values.adapter.optionalProperties }}
+          - name: {{required "A valid name is required for each optionalProperties!" .name }}
+            value: {{required "A valid value is required for each optionalProperties!" .value | quote }}
+          {{- end }}
+        livenessProbe:
+{{ toYaml .Values.livenessProbe | indent 10 }}
+      restartPolicy: Always

@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "wphhc-adapter.name" . }}-virtual-service
+  namespace: {{ .Values.namespace }}
+  labels:
+  {{ include "wphhc-adapter.labels" . | indent 2 }}
+spec:
+  hosts:
+  - {{ include "wphhc-adapter.name" . }}.{{ .Values.namespace }}.svc.cluster.local
+  http:
+  - name: {{ include "wphhc-adapter.name" . }}
+    route:
+    - destination:
+        host: {{ include "wphhc-adapter.name" . }}.{{ .Values.namespace }}.svc.cluster.local
+        subset: {{ include "wphhc-adapter.name" . }}-subset-v1
+        port:
+          number: {{ .Values.service.port }}
